@@ -2,6 +2,7 @@
 import socket
 import re
 import threading
+import gzip
 
 
 def main():
@@ -23,7 +24,8 @@ def handleHttpRequest(connection):
             content_encoding = content_encoding.split(b", ")
             for encoding in content_encoding:
                 if encoding == b"gzip":
-                    connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\nContent-Encoding: %s\r\n\r\n%s" % (len(route.split(b"/")[2]), encoding, route.split(b"/")[2]))
+                    compressed_data = gzip.compress(route.split(b"/")[2])
+                    connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\nContent-Encoding: %s\r\n\r\n%s" % (len(compressed_data), encoding, compressed_data))
                     break
             else:
                 connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\n\r\n%s" % (len(route.split(b"/")[2]), route.split(b"/")[2]))
