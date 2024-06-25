@@ -23,7 +23,9 @@ def handleHttpRequest(connection):
     elif route.split(b"/")[1] == b"files" and len(route.split(b"/")) == 3 and route.split(b"/")[2] != b"":
         try:
             with open(b"/tmp/data/codecrafters.io/http-server-tester/" + route.split(b"/")[2], "rb") as f:
-                connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: application/octet-stream\r\nContent-Length: %d\r\n\r\n%s" % (len(f.read()), f.read()))
+                file_data = f.readline()
+                print(b"HTTP/1.1 200 OK\r\nContent-type: application/octet-stream\r\nContent-Length: %d\r\n\r\n%s" % (len(f.read()), f.read()))
+                connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: application/octet-stream\r\nContent-Length: %d\r\n\r\n%s" % (len(file_data), file_data))
         except FileNotFoundError:
             connection.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n")
     else:
