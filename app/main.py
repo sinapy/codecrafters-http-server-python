@@ -12,6 +12,7 @@ def main():
 
 def handleHttpRequest(connection):
     data = connection.recv(1024)
+    print(data)
     route = data.split(b" ")[1]
     if (route == b"/"):
         connection.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
