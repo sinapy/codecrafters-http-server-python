@@ -21,8 +21,10 @@ def handleHttpRequest(connection):
         if len(content_encoding) > 0:
             content_encoding = content_encoding[0].removeprefix(b"Accept-Encoding:").strip()
             content_encoding = content_encoding.split(b", ")
-            if content_encoding == b"gzip":
-                connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\nContent-Encoding: %s\r\n\r\n%s" % (len(route.split(b"/")[2]), content_encoding, route.split(b"/")[2]))
+            for encoding in content_encoding:
+                if encoding == b"gzip":
+                    connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\nContent-Encoding: %s\r\n\r\n%s" % (len(route.split(b"/")[2]), encoding, route.split(b"/")[2]))
+                    break
             else:
                 connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\n\r\n%s" % (len(route.split(b"/")[2]), route.split(b"/")[2]))
         else:
