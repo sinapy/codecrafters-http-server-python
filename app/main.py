@@ -17,7 +17,14 @@ def handleHttpRequest(connection):
     if (route == b"/"):
         connection.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
     elif route.split(b"/")[1] == b"echo" and len(route.split(b"/")) == 3 and route.split(b"/")[2] != b"":
-        connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\n\r\n%s" % (len(route.split(b"/")[2]), route.split(b"/")[2]))
+        content_encoding = [x for x in data.split(b"\r\n") if x.startswith(b"Content-Encoding:")]
+        if len(content_encoding) > 0:
+            content_encoding = content_encoding[0].removeprefix(b"Content-Encoding:").strip()
+            if content_encoding == b"gzip":
+                connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\nContent-Encoding: %s\r\n\r\n%s" % (len(route.split(b"/")[2]), content_encoding, route.split(b"/")[2]))
+            else:
+                connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\n\r\n%s" % (len(route.split(b"/")[2]), route.split(b"/")[2]))
+
     elif route.split(b"/")[1] == b"user-agent":
         user_agent = [x for x in data.split(b"\r\n") if x.startswith(b"User-Agent:")][0].removeprefix(b"User-Agent:").strip()
         connection.sendall(b"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: %d\r\n\r\n%s" % (len(user_agent), user_agent))
